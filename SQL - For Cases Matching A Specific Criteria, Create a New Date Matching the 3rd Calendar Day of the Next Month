@@ -1,0 +1,11 @@
+-- This SQL sample is for a case study related to another sample. 
+-- In this scenario, if cases matching a certain description have a 'PostNextPmtDate' beyond the current date or within the previous 63 days,
+--   then the case must take a new date equal to the third calendar date of the following month. 
+
+(
+H1.HoldDescription IN ('[Case] Filed') 
+AND B.[Case]Filed = '3' 
+AND (B.PostNextPmtDate BETWEEN GETDATE() - 63 
+AND GETDATE() OR B.PostNextPmtDate > GETDATE())) 
+THEN DATEADD(DAY,3,(EOMONTH(GETDATE()))
+)
