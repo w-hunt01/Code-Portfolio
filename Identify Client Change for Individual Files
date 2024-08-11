@@ -1,0 +1,41 @@
+-- This script was intended to identify instances when a client name may have changed for a file. 
+-- This sample is intended to demonstrate use of temporary tables made from database views, window functions, and some T-SQL (DELETE). 
+
+DROP TABLE IF EXISTS #FalseFlag[ABC]Change
+CREATE TABLE #FalseFlag[ABC]Change (OfficialName VARCHAR(200), SimplifiedName VARCHAR(200))
+INSERT INTO #FalseFlag[ABC]Change (OfficialName, SimplifiedName) SELECT '-----','-----'
+INSERT INTO #FalseFlag[ABC]Change (OfficialName, SimplifiedName) SELECT '-----','-----'
+INSERT INTO #FalseFlag[ABC]Change (OfficialName, SimplifiedName) SELECT '-----','-----'
+INSERT INTO #FalseFlag[ABC]Change (OfficialName, SimplifiedName) SELECT '-----','-----'
+INSERT INTO #FalseFlag[ABC]Change (OfficialName, SimplifiedName) SELECT '-----','-----'
+INSERT INTO #FalseFlag[ABC]Change (OfficialName, SimplifiedName) SELECT '-----','-----'
+INSERT INTO #FalseFlag[ABC]Change (OfficialName, SimplifiedName) SELECT '-----','-----'
+INSERT INTO #FalseFlag[ABC]Change (OfficialName, SimplifiedName) SELECT '-----','-----'
+INSERT INTO #FalseFlag[ABC]Change (OfficialName, SimplifiedName) SELECT '-----','-----'
+INSERT INTO #FalseFlag[ABC]Change (OfficialName, SimplifiedName) SELECT '-----','-----'
+
+DROP TABLE IF EXISTS #[ABC]Change
+SELECT
+A.UniquID, 
+A.[File]ID, 
+A.HistoryCounter,
+A.[ABC]ID, 
+A.ClientName, 
+A.ClientID, 
+A.StartDt, 
+A.EndDt, 
+ROW_NUMBER() OVER (PARTITION BY A.[File]ID ORDER BY A.StartDt DESC) RN, 
+C.OfficialName, 
+C.SimplifiedName
+INTO #[ABC]Change
+FROM [Database].[Schema].[View] A
+LEFT JOIN (SELECT [File]ID, ClientName, MAX(StartDt) mostrecent
+	FROM [Database].[Schema].[View]
+	GROUP BY [File]ID, ClientName) B.[File]ID ON A.[File]ID
+LEFT JOIN #FalseFlag[ABC]Change C ON C.Official = Name A.ClientName
+WHERE A.StartDt = B.mostrecent
+ORDER BY A.[File]ID DESC
+
+DELETE FROM #[ABC]Change WHERE ClientName LEFT 'Fred%' AND SimplifiedName = '-----'
+DELETE FROM #[ABC]Change WHERE ClientName LEFT 'Vic%' AND SimplifiedName = '-----'
+DELETE FROM #[ABC]Change WHERE ClientName IN ('Alpha') AND SimplifiedName = '-----'
