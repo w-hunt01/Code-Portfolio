@@ -1,0 +1,14 @@
+-- This is an excerpt from another SQL script. 
+-- This sample is included to demonstrate comptence with using date ranges within WHERE clauses. 
+-- For the businsss scenario in question, the 'PostNextPmtDate' must be beyond the current date or between the current date and the prior 63 days. 
+-- 63 days are an agreed upon number to approximate two months, with a slight grace period. 
+-- Some column names are partially redacted with an alias. 
+
+WHERE
+(
+(H1.HoldDescription IN ('[Case] Filed') -- The file in quesiton must be present in two tables, under a specific section of one. 
+AND H1.ActiveHoldIndicator = 1 -- Binary Indicator, signifying that a condition is present
+AND B.Active[Case] = 1  -- Binary Indicator, signifying that a condition is present
+AND B.[Section]Filed = '3' -- The numeric value '3' within this table maps over to a specific characteristic witin another table
+AND (B.PostNextPmtDate > GETDATE() OR B.PostNextPmtDate BETWEEN GETDATE() - 63 AND GETDATE())) -- This line is where the date range occurs.
+)
